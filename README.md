@@ -38,3 +38,5 @@ ejecución del juego
  `PERDISTE`   Reinicia el juego                         
 
 ![Vista previa del juego](tp_final.png)
+
+https://www.tinkercad.com/things/a5ZsUkVwuCh-copy-of-copy-of-tp-final/editel?returnTo=https%3A%2F%2Fwww.tinkercad.com%2Fdashboard%2Fdesigns%2Fcircuits&sharecode=h8oywVI3KTopVFW2wHHTmwwNAmHOflBZM-Bw-yXrbvA
