@@ -36,3 +36,5 @@ ejecución del juego
  `VERIFICAR`  Compara las respuestas                    
  `GANASTE`    Muestra mensaje y pasa de nivel           
  `PERDISTE`   Reinicia el juego                         
+
+![Vista previa del juego](tp-final.png)
