@@ -37,4 +37,4 @@ ejecución del juego
  `GANASTE`    Muestra mensaje y pasa de nivel           
  `PERDISTE`   Reinicia el juego                         
 
-![Vista previa del juego](tp-final.png)
+![Vista previa del juego](tp_final.png)
