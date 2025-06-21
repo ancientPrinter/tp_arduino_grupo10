@@ -70,8 +70,7 @@ void loop() {
       analogWrite(TIMER, 0);
       while (digitalRead(BOTON_INICIO) == LOW) {
 
-        int potVal = analogRead(POT_PIN);
-        int nivel;
+        potVal = analogRead(POT_PIN);
 
         if (potVal >= 0 && potVal < 341) {
           nivel = 0;  
