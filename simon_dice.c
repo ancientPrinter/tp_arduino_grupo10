@@ -39,10 +39,14 @@ int nivel = 0;
 const int DelayDificultad[3] = {1000, 600, 300};
 
 void setup() {
-  pinMode(LED_ROJO, OUTPUT);      pinMode(BOTON_ROJO, INPUT);
-  pinMode(LED_VERDE, OUTPUT);     pinMode(BOTON_VERDE, INPUT);
-  pinMode(LED_AZUL, OUTPUT);      pinMode(BOTON_AZUL, INPUT);
-  pinMode(LED_AMARILLO, OUTPUT);  pinMode(BOTON_AMARILLO, INPUT);
+  pinMode(LED_ROJO, OUTPUT);
+  pinMode(BOTON_ROJO, INPUT);
+  pinMode(LED_VERDE, OUTPUT);
+  pinMode(BOTON_VERDE, INPUT);
+  pinMode(LED_AZUL, OUTPUT);
+  pinMode(BOTON_AZUL, INPUT);
+  pinMode(LED_AMARILLO, OUTPUT); 
+  pinMode(BOTON_AMARILLO, INPUT);
   pinMode(TIMER, OUTPUT);
   pinMode(BOTON_INICIO, INPUT);
   pinMode(POT_PIN, INPUT);
