@@ -124,17 +124,62 @@ void loop() {
   switch (estadoActual) {
     case 0:
       analogWrite(TIMER, 0);
-      lcd.clear();
       while (digitalRead(BOTON_INICIO) == LOW) {
-        int pot = analogRead(POT_PIN);
-        nivel = map(pot, 0, 1023, 0, 2);
-        const char* nombres[] = {"Facil", "Medio", "Dificil"};
+
+        int potVal = analogRead(POT_PIN);
+        int nivel;
+
+        if (potVal >= 0 && potVal < 341) {
+          nivel = 0;  
+        }
+        else if (potVal >= 341 && potVal < 682) {
+          nivel = 1; 
+        }
+        else {
+          nivel = 2;  
+        }
+
+        const char* names[3] = {"Facil", "Medio", "Dificil"};
+
         lcd.setCursor(0, 0);
-        lcd.print("Presione Inicio ");
+        lcd.print("Presione Inicio");
+
+        lcd.setCursor(0, 1);
+        lcd.print("                "); 
+
         lcd.setCursor(0, 1);
         lcd.print("Nivel: ");
-        lcd.print(nombres[nivel]);
-        delay(100);
+        lcd.print(names[nivel]);
+
+        delay(2000);
+            
+        digitalWrite(LED_ROJO, HIGH);
+        delay(300);
+        digitalWrite(LED_ROJO, LOW);
+
+        digitalWrite(LED_VERDE, HIGH);
+        delay(300);
+        digitalWrite(LED_VERDE, LOW);
+
+        digitalWrite(LED_AZUL, HIGH);
+        delay(300);
+        digitalWrite(LED_AZUL, LOW);
+
+        digitalWrite(LED_AMARILLO, HIGH);
+        delay(300);
+        digitalWrite(LED_AMARILLO, LOW);
+
+        digitalWrite(LED_AZUL, HIGH);
+        delay(300);
+        digitalWrite(LED_AZUL, LOW);
+
+        digitalWrite(LED_VERDE, HIGH);
+        delay(300);
+        digitalWrite(LED_VERDE, LOW);
+
+        digitalWrite(LED_ROJO, HIGH);
+        delay(300);
+        digitalWrite(LED_ROJO, LOW);
       }
       estadoActual = 1;
       break;
