@@ -36,27 +36,7 @@ int index = 0;
 int botonesApretados = 0;
 int nivel = 0;
 
-const int blinkDelay[3] = {1000, 600, 300};
-
-// Variables para mostrar secuencia
-bool mostrandoSecuencia = false;
-unsigned long tiempoSecuenciaAnterior = 0;
-int indiceSecuencia = 0;
-int estadoLed = 0;
-int delayActual = 1000;
-
-// Efecto de botón sin delay
-bool ledRojoActivo = false, ledVerdeActivo = false, ledAzulActivo = false, ledAmarilloActivo = false;
-unsigned long tiempoLedRojo = 0, tiempoLedVerde = 0, tiempoLedAzul = 0, tiempoLedAmarillo = 0;
-
-// Error sin delay
-bool mostrandoError = false;
-unsigned long tiempoError = 0;
-String mensajeError = "";
-
-unsigned long tiempoVictoria = 0;
-bool primerIngresoVictoria = true;
-
+const int DelayDificultad[3] = {1000, 600, 300};
 
 void setup() {
   pinMode(LED_ROJO, OUTPUT);      pinMode(BOTON_ROJO, INPUT);
@@ -72,55 +52,19 @@ void setup() {
   lcd.backlight();
 }
 
-void scrollCiclicoTexto(String texto, int fila, int delayScroll = 250) {
-  static unsigned long ultimaActualizacion = 0;
-  static int posicion = 0;
+void loop() {  
+  int potVal = analogRead(POT_PIN);
+  int nivel;
 
-  if (millis() - ultimaActualizacion > delayScroll) {
-    if (texto.length() <= 16) {
-      lcd.setCursor(0, fila);
-      lcd.print(texto + "                "); // Limpia línea
-    } else {
-      String ventana = texto.substring(posicion, posicion + 16);
-      lcd.setCursor(0, fila);
-      lcd.print(ventana);
-      posicion++;
-      if (posicion > texto.length() - 16) {
-        posicion = 0;
-      }
-    }
-    ultimaActualizacion = millis();
+  if (potVal < 341) {
+    nivel = 0;
   }
-}
-
-void mostrarSecuencia(int nivel) {
-  delayActual = blinkDelay[nivel];
-  if (indiceSecuencia >= contador + 1) {
-    mostrandoSecuencia = false;
-    estadoActual = 2;
-    return;
+  else if (potVal >= 341 && potVal < 682) {
+    nivel = 1;
   }
-
-  if (estadoLed == 0 && millis() - tiempoSecuenciaAnterior >= 200) {
-    switch (rondasAnteriores[indiceSecuencia]) {
-      case 1: digitalWrite(LED_ROJO, HIGH); break;
-      case 2: digitalWrite(LED_VERDE, HIGH); break;
-      case 3: digitalWrite(LED_AZUL, HIGH); break;
-      case 4: digitalWrite(LED_AMARILLO, HIGH); break;
-    }
-    estadoLed = 1;
-    tiempoSecuenciaAnterior = millis();
+  else {
+    nivel = 2;
   }
-  else if (estadoLed == 1 && millis() - tiempoSecuenciaAnterior >= delayActual) {
-    digitalWrite(LED_ROJO, LOW); digitalWrite(LED_VERDE, LOW);
-    digitalWrite(LED_AZUL, LOW); digitalWrite(LED_AMARILLO, LOW);
-    estadoLed = 0;
-    indiceSecuencia++;
-    tiempoSecuenciaAnterior = millis();
-  }
-}
-
-void loop() {
   switch (estadoActual) {
     case 0:
       analogWrite(TIMER, 0);
@@ -199,24 +143,71 @@ void loop() {
       lcd.setCursor(0, 1);
       lcd.print("Memorice secuencia");
 
-      indiceSecuencia = 0;
-      mostrandoSecuencia = true;
-      estadoLed = 0;
-      tiempoSecuenciaAnterior = millis();
+      // Bucle del array de rondas anteriores
+      for (int j = 0; j < contador; j++) {
+        switch (rondasAnteriores[j]) {
+          case 1:
+            digitalWrite(LED_ROJO, HIGH);
+          delay(DelayDificultad[nivel]);
+            break;
+          case 2:
+            digitalWrite(LED_VERDE, HIGH);
+          delay(DelayDificultad[nivel]);
+            break;
+          case 3:
+            digitalWrite(LED_AZUL, HIGH);
+          delay(DelayDificultad[nivel]);
+            break;
+          case 4:
+            digitalWrite(LED_AMARILLO, HIGH);
+          delay(DelayDificultad[nivel]);
+            break;
+        }
+        
+
+        // Apaga los LEDs entre secuencias
+        digitalWrite(LED_ROJO, LOW);
+        digitalWrite(LED_VERDE, LOW);
+        digitalWrite(LED_AZUL, LOW);
+        digitalWrite(LED_AMARILLO, LOW);
+        delay(500);
+      }
+
+      // Agrega el nuevo número a la secuencia
+      switch (numeroAleatorio) {
+        case 1:
+          digitalWrite(LED_ROJO, HIGH);
+          delay(DelayDificultad[nivel]);
+          break;
+        case 2:
+          digitalWrite(LED_VERDE, HIGH);
+          delay(DelayDificultad[nivel]);
+          break;
+        case 3:
+          digitalWrite(LED_AZUL, HIGH);
+          delay(DelayDificultad[nivel]);
+          break;
+        case 4:
+          digitalWrite(LED_AMARILLO, HIGH);
+          delay(DelayDificultad[nivel]);
+          break;
+      }
+    
+      digitalWrite(LED_ROJO, LOW);
+      digitalWrite(LED_VERDE, LOW);
+      digitalWrite(LED_AZUL, LOW);
+      digitalWrite(LED_AMARILLO, LOW);
       contador++;
-      estadoActual = 3;
+      estadoActual = 2;
       break;
 
-    case 3:
-      mostrarSecuencia(nivel);
-      break;
-
-    case 2: {
+    case 2:
       botonesApretados = 0;
       index = 0;
-      static unsigned long tiempoInicio = millis();
-      int duracionTurno = 10000 + (contador * 1000);
+      unsigned long tiempoInicio = millis();
+      int duracionTurno = 10000 - nivel * 2000 + (contador * 1000);
 
+      lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("Tu turno:");
       lcd.setCursor(0, 1);
@@ -224,13 +215,18 @@ void loop() {
 
       while (botonesApretados < contador) {
         unsigned long tiempoRestante = duracionTurno - (millis() - tiempoInicio);
+
         if (tiempoRestante <= 0) {
           analogWrite(TIMER, 0);
-          mensajeError = "Tiempo Agotado";
-          estadoActual = 4;
-          mostrandoError = true;
-          tiempoError = millis();
-          return;
+          lcd.clear();
+          lcd.setCursor(0, 0);
+          lcd.print("Tiempo Agotado");
+          delay(1000);
+          estadoActual = 0;
+          indice = 0;
+          contador = 0;
+          delay(500);
+          break;
         }
 
         int estadoTimer = map(tiempoRestante, 0, duracionTurno, 0, 255);
@@ -239,124 +235,96 @@ void loop() {
         if (digitalRead(BOTON_ROJO) == HIGH && botonRojoStateAnterior == LOW) {
           botonesElegidos[index] = 1;
           digitalWrite(LED_ROJO, HIGH);
-          ledRojoActivo = true;
-          tiempoLedRojo = millis();
+          delay(500);
+          digitalWrite(LED_ROJO, LOW);
+
           if (botonesElegidos[index] != rondasAnteriores[index]) {
-            mensajeError = "Error: rojo";
-            estadoActual = 4;
-            mostrandoError = true;
-            tiempoError = millis();
-            return;
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Error: rojo");
+            delay(1000);
+            estadoActual = 0;
+            indice = 0;
+            contador = 0;
+            delay(500);
+            break;
           }
-          index++; botonesApretados++;
-        }
-        if (ledRojoActivo && millis() - tiempoLedRojo >= 500) {
-          digitalWrite(LED_ROJO, LOW); ledRojoActivo = false;
+          index++;
+          botonesApretados++;
         }
         botonRojoStateAnterior = digitalRead(BOTON_ROJO);
 
         if (digitalRead(BOTON_VERDE) == HIGH && botonVerdeStateAnterior == LOW) {
           botonesElegidos[index] = 2;
           digitalWrite(LED_VERDE, HIGH);
-          ledVerdeActivo = true;
-          tiempoLedVerde = millis();
+          delay(500);
+          digitalWrite(LED_VERDE, LOW);
+
           if (botonesElegidos[index] != rondasAnteriores[index]) {
-            mensajeError = "Error: verde";
-            estadoActual = 4;
-            mostrandoError = true;
-            tiempoError = millis();
-            return;
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Error: verde");
+            delay(1000);
+            estadoActual = 0;
+            indice = 0;
+            contador = 0;
+            delay(500);
+            break;
           }
-          index++; botonesApretados++;
-        }
-        if (ledVerdeActivo && millis() - tiempoLedVerde >= 500) {
-          digitalWrite(LED_VERDE, LOW); ledVerdeActivo = false;
+          index++;
+          botonesApretados++;
         }
         botonVerdeStateAnterior = digitalRead(BOTON_VERDE);
 
         if (digitalRead(BOTON_AZUL) == HIGH && botonAzulStateAnterior == LOW) {
           botonesElegidos[index] = 3;
           digitalWrite(LED_AZUL, HIGH);
-          ledAzulActivo = true;
-          tiempoLedAzul = millis();
+          delay(500);
+          digitalWrite(LED_AZUL, LOW);
+
           if (botonesElegidos[index] != rondasAnteriores[index]) {
-            mensajeError = "Error: azul";
-            estadoActual = 4;
-            mostrandoError = true;
-            tiempoError = millis();
-            return;
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Error: azul");
+            delay(1000);
+            estadoActual = 0;
+            indice = 0;
+            contador = 0;
+            delay(500);
+            break;
           }
-          index++; botonesApretados++;
-        }
-        if (ledAzulActivo && millis() - tiempoLedAzul >= 500) {
-          digitalWrite(LED_AZUL, LOW); ledAzulActivo = false;
+          index++;
+          botonesApretados++;
         }
         botonAzulStateAnterior = digitalRead(BOTON_AZUL);
 
         if (digitalRead(BOTON_AMARILLO) == HIGH && botonAmarilloStateAnterior == LOW) {
           botonesElegidos[index] = 4;
           digitalWrite(LED_AMARILLO, HIGH);
-          ledAmarilloActivo = true;
-          tiempoLedAmarillo = millis();
+          delay(500);
+          digitalWrite(LED_AMARILLO, LOW);
+
           if (botonesElegidos[index] != rondasAnteriores[index]) {
-            mensajeError = "Error: amarillo";
-            estadoActual = 4;
-            mostrandoError = true;
-            tiempoError = millis();
-            return;
+            lcd.clear();
+            lcd.setCursor(0, 0);
+            lcd.print("Error: amarillo");
+            delay(1000);
+            estadoActual = 0;
+            indice = 0;
+            contador = 0;
+            delay(500);
+            break;
           }
-          index++; botonesApretados++;
-        }
-        if (ledAmarilloActivo && millis() - tiempoLedAmarillo >= 500) {
-          digitalWrite(LED_AMARILLO, LOW); ledAmarilloActivo = false;
+          index++;
+          botonesApretados++;
         }
         botonAmarilloStateAnterior = digitalRead(BOTON_AMARILLO);
       }
 
-      analogWrite(TIMER, 0);
-	  if(contador == 2){  // ejemplo: si llega a ronda 10 gana
-         estadoActual = 5;  // ir a pantalla de victoria
-         } else {
-                 estadoActual = 1;
-                 }
-
-      break;
-    }
-
-    case 4:
-      if (mostrandoError) {
-        lcd.clear();
-        lcd.setCursor(0, 0);
-        lcd.print(mensajeError);
-        mostrandoError = false;
-        tiempoError = millis();
-      }
-      if (millis() - tiempoError >= 1000) {
-        estadoActual = 0;
-        indice = 0;
-        contador = 0;
+      if (estadoActual == 2) {
+        analogWrite(TIMER, 0);
+        estadoActual = 1;
       }
       break;
-  
-    
-case 5:
-  if (primerIngresoVictoria) {
-    lcd.clear();
-    primerIngresoVictoria = false;
-    tiempoVictoria = millis();
-  }
-  scrollCiclicoTexto("¡Felicitaciones! Ganaste el juego.", 0, 200);
-  lcd.setCursor(0,1);
-  lcd.print("Reiniciando...");
-
-  if (millis() - tiempoVictoria > 5000) {  // 5 segundos mostrando mensaje
-    estadoActual = 0;
-    contador = 0;
-    indice = 0;
-    primerIngresoVictoria = true;  // reset para la próxima vez
-  }
-  break;
-
-
   }
 }
